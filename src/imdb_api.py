@@ -5,6 +5,8 @@ slice of it). Shaping/normalizing the data lives elsewhere — this module is
 only responsible for talking to the API.
 """
 
+import time
+
 import requests
 
 from . import config
@@ -12,16 +14,39 @@ from . import config
 BASE_URL = f"https://{config.RAPIDAPI_HOST}"
 TIMEOUT = 30
 
+# The RapidAPI host occasionally drops connections or throttles; retry a few
+# times with exponential backoff so one transient blip doesn't abort a run
+# that makes a dozen+ sequential calls.
+MAX_RETRIES = 4
+BACKOFF_BASE = 1.0  # seconds: waits 1, 2, 4 ... between attempts
+RETRY_STATUSES = {429, 500, 502, 503, 504}
+
 
 def _get(path: str, params: dict) -> dict:
-    response = requests.get(
-        f"{BASE_URL}{path}",
-        headers=config.headers(),
-        params=params,
-        timeout=TIMEOUT,
-    )
-    response.raise_for_status()
-    return response.json()
+    url = f"{BASE_URL}{path}"
+    for attempt in range(MAX_RETRIES):
+        last_attempt = attempt == MAX_RETRIES - 1
+        try:
+            response = requests.get(
+                url,
+                headers=config.headers(),
+                params=params,
+                timeout=TIMEOUT,
+            )
+        except (requests.ConnectionError, requests.Timeout):
+            if last_attempt:
+                raise
+        else:
+            # Retry transient server/throttle statuses; let everything else
+            # (success or a real 4xx) fall through to raise_for_status/return.
+            if not (response.status_code in RETRY_STATUSES and not last_attempt):
+                response.raise_for_status()
+                return response.json()
+
+        time.sleep(BACKOFF_BASE * 2**attempt)
+
+    # Unreachable: the loop either returns or raises on the last attempt.
+    raise RuntimeError("retry loop exited without returning")
 
 
 def search_director(query: str) -> list[dict]:
