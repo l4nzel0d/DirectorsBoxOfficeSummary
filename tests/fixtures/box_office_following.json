@@ -1,0 +1,42 @@
+{
+  "__typename": "Title",
+  "id": "tt0154506",
+  "titleText": {
+    "text": "Following",
+    "isOriginalTitle": true
+  },
+  "originalTitleText": {
+    "text": "Following",
+    "isOriginalTitle": true
+  },
+  "releaseYear": {
+    "year": 1998
+  },
+  "budget": {
+    "totalBudget": {
+      "__typename": "Money",
+      "amount": 6000,
+      "currency": "USD"
+    }
+  },
+  "openingWeekendGrosses": {
+    "total": 0,
+    "edges": []
+  },
+  "domesticGross": {
+    "__typename": "BoxOfficeGross",
+    "total": {
+      "__typename": "Money",
+      "amount": 48482,
+      "currency": "USD"
+    }
+  },
+  "worldwideGross": {
+    "__typename": "BoxOfficeGross",
+    "total": {
+      "__typename": "Money",
+      "amount": 126052,
+      "currency": "USD"
+    }
+  }
+}

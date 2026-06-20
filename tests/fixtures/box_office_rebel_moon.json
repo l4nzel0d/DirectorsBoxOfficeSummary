@@ -1,0 +1,28 @@
+{
+  "__typename": "Title",
+  "id": "tt14998742",
+  "titleText": {
+    "text": "Rebel Moon - Part One: A Child of Fire",
+    "isOriginalTitle": true
+  },
+  "originalTitleText": {
+    "text": "Rebel Moon - Part One: A Child of Fire",
+    "isOriginalTitle": true
+  },
+  "releaseYear": {
+    "year": 2023
+  },
+  "budget": {
+    "totalBudget": {
+      "__typename": "Money",
+      "amount": 90000000,
+      "currency": "USD"
+    }
+  },
+  "openingWeekendGrosses": {
+    "total": 0,
+    "edges": []
+  },
+  "domesticGross": null,
+  "worldwideGross": null
+}

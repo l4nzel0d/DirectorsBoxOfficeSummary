@@ -1,0 +1,56 @@
+{
+  "__typename": "Title",
+  "id": "tt15398776",
+  "titleText": {
+    "text": "Oppenheimer",
+    "isOriginalTitle": true
+  },
+  "originalTitleText": {
+    "text": "Oppenheimer",
+    "isOriginalTitle": true
+  },
+  "releaseYear": {
+    "year": 2023
+  },
+  "budget": {
+    "totalBudget": {
+      "__typename": "Money",
+      "amount": 100000000,
+      "currency": "USD"
+    }
+  },
+  "openingWeekendGrosses": {
+    "total": 1,
+    "edges": [
+      {
+        "node": {
+          "gross": {
+            "__typename": "BoxOfficeGross",
+            "total": {
+              "__typename": "Money",
+              "amount": 82455420,
+              "currency": "USD"
+            }
+          },
+          "weekendStartDate": "2023-07-21"
+        }
+      }
+    ]
+  },
+  "domesticGross": {
+    "__typename": "BoxOfficeGross",
+    "total": {
+      "__typename": "Money",
+      "amount": 330078895,
+      "currency": "USD"
+    }
+  },
+  "worldwideGross": {
+    "__typename": "BoxOfficeGross",
+    "total": {
+      "__typename": "Money",
+      "amount": 975811333,
+      "currency": "USD"
+    }
+  }
+}
