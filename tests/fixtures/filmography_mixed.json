@@ -1,9 +1,0 @@
-[
-  {"category": "director", "status": "released", "titleType": "movie", "id": "/title/tt0000001/", "title": "Kept One", "year": 2001, "image": {"url": "http://img/1.jpg", "width": 100, "height": 150}},
-  {"category": "director", "status": "released", "titleType": "movie", "id": "/title/tt0000002/", "title": "Kept Two No Year No Image"},
-  {"category": "director", "status": "released", "titleType": "tvSeries", "id": "/title/tt0000003/", "title": "TV Series Drop", "year": 2005},
-  {"category": "director", "status": "pre production", "titleType": "movie", "id": "/title/tt0000004/", "title": "Unreleased Drop", "year": 2030},
-  {"category": "actor", "status": "released", "titleType": "movie", "id": "/title/tt0000005/", "title": "Acted Drop", "year": 2003},
-  {"category": "writer", "status": "released", "titleType": "movie", "id": "/title/tt0000006/", "title": "Wrote Drop", "year": 2004},
-  {"status": "released", "titleType": "movie", "id": "/title/tt0000007/", "title": "No Category Key Drop", "year": 2002}
-]

@@ -1,0 +1,203 @@
+{
+    "credits": [
+        {
+            "title": {
+                "id": "tt1517268",
+                "type": "movie",
+                "primaryTitle": "Barbie",
+                "primaryImage": {
+                    "url": "https://m.media-amazon.com/images/M/MV5BYjI3NDU0ZGYtYjA2YS00Y2RlLTgwZDAtYTE2YTM5ZjE1M2JlXkEyXkFqcGc@._V1_.jpg",
+                    "width": 1900,
+                    "height": 2814
+                },
+                "startYear": 2023,
+                "genres": [
+                    "Adventure",
+                    "Comedy",
+                    "Fantasy"
+                ],
+                "rating": {
+                    "aggregateRating": 6.8,
+                    "voteCount": 688551
+                },
+                "metacritic": {
+                    "score": 80,
+                    "reviewCount": 67
+                },
+                "originCountries": [
+                    {
+                        "code": "US",
+                        "name": "United States"
+                    },
+                    {
+                        "code": "GB",
+                        "name": "United Kingdom"
+                    }
+                ]
+            },
+            "category": "director"
+        },
+        {
+            "title": {
+                "id": "tt4925292",
+                "type": "movie",
+                "primaryTitle": "Lady Bird",
+                "primaryImage": {
+                    "url": "https://m.media-amazon.com/images/M/MV5BNjk5MzcyOWQtNzE1Mi00NzdmLTlkM2QtOTdjZThhMDc2Y2NjXkEyXkFqcGc@._V1_.jpg",
+                    "width": 2031,
+                    "height": 3000
+                },
+                "startYear": 2017,
+                "genres": [
+                    "Comedy",
+                    "Drama"
+                ],
+                "rating": {
+                    "aggregateRating": 7.4,
+                    "voteCount": 365034
+                },
+                "metacritic": {
+                    "score": 93,
+                    "reviewCount": 52
+                },
+                "originCountries": [
+                    {
+                        "code": "US",
+                        "name": "United States"
+                    }
+                ]
+            },
+            "category": "director"
+        },
+        {
+            "title": {
+                "id": "tt3281548",
+                "type": "movie",
+                "primaryTitle": "Little Women",
+                "primaryImage": {
+                    "url": "https://m.media-amazon.com/images/M/MV5BMWMzYjNiZWMtMDg4NS00MDgyLTk5MWItOTFmNjg4NzRhZmExXkEyXkFqcGc@._V1_.jpg",
+                    "width": 6072,
+                    "height": 9000
+                },
+                "startYear": 2019,
+                "genres": [
+                    "Drama",
+                    "Romance"
+                ],
+                "rating": {
+                    "aggregateRating": 7.8,
+                    "voteCount": 285308
+                },
+                "metacritic": {
+                    "score": 91,
+                    "reviewCount": 57
+                },
+                "originCountries": [
+                    {
+                        "code": "US",
+                        "name": "United States"
+                    }
+                ]
+            },
+            "category": "director"
+        },
+        {
+            "title": {
+                "id": "tt1186248",
+                "type": "movie",
+                "primaryTitle": "Nights and Weekends",
+                "primaryImage": {
+                    "url": "https://m.media-amazon.com/images/M/MV5BMTU5NzM0NjUxOF5BMl5BanBnXkFtZTcwMjUyMTQ5MQ@@._V1_.jpg",
+                    "width": 795,
+                    "height": 1200
+                },
+                "startYear": 2008,
+                "genres": [
+                    "Drama",
+                    "Romance"
+                ],
+                "rating": {
+                    "aggregateRating": 5.8,
+                    "voteCount": 2042
+                },
+                "metacritic": {
+                    "score": 59,
+                    "reviewCount": 6
+                },
+                "originCountries": [
+                    {
+                        "code": "US",
+                        "name": "United States"
+                    }
+                ]
+            },
+            "category": "director"
+        },
+        {
+            "title": {
+                "id": "tt27860442",
+                "type": "musicVideo",
+                "primaryTitle": "Dua Lipa: Dance the Night",
+                "primaryImage": {
+                    "url": "https://m.media-amazon.com/images/M/MV5BZmMyZTFlMmMtYjNjNS00OWY0LTkxNmEtMWRiMjczNjQxZmFlXkEyXkFqcGc@._V1_.jpg",
+                    "width": 1000,
+                    "height": 1000
+                },
+                "startYear": 2023,
+                "genres": [
+                    "Music",
+                    "Musical"
+                ],
+                "rating": {
+                    "aggregateRating": 7.1,
+                    "voteCount": 367
+                },
+                "originCountries": [
+                    {
+                        "code": "US",
+                        "name": "United States"
+                    }
+                ]
+            },
+            "category": "director"
+        },
+        {
+            "title": {
+                "id": "tt9077514",
+                "type": "movie",
+                "primaryTitle": "Narnia: The Magician's Nephew",
+                "primaryImage": {
+                    "url": "https://m.media-amazon.com/images/M/MV5BZmJiNzIxNDQtNzhhMC00NGNmLWJkY2MtOWI1MDdmNzFmZTE3XkEyXkFqcGc@._V1_.jpg",
+                    "width": 1950,
+                    "height": 2890
+                },
+                "startYear": 2027,
+                "genres": [
+                    "Adventure",
+                    "Family",
+                    "Fantasy"
+                ],
+                "originCountries": [
+                    {
+                        "code": "IE",
+                        "name": "Ireland"
+                    },
+                    {
+                        "code": "GB",
+                        "name": "United Kingdom"
+                    },
+                    {
+                        "code": "CA",
+                        "name": "Canada"
+                    },
+                    {
+                        "code": "US",
+                        "name": "United States"
+                    }
+                ]
+            },
+            "category": "director"
+        }
+    ],
+    "totalCount": 6
+}
