@@ -15,6 +15,10 @@ from .models import Director, Movie
 
 MM_PER_INCH = 25.4
 
+# With more films than this, the chart page turns landscape and drops the
+# header, so crowded tick labels get the room instead of the plot.
+PORTRAIT_CHART_MAX_FILMS = 15
+
 
 def _money(amount: int) -> str:
     """Format an amount as USD, or '-' when it's 0 (missing/unknown)."""
@@ -36,8 +40,11 @@ class PDF(FPDF):
         self.films = movies.by_worldwide_desc(films)
         self.set_left_margin(12)
         self.set_right_margin(12)
+        self.show_header = True  # turned off for a landscape chart page
 
     def header(self):
+        if not self.show_header:
+            return
         self.set_font("Courier", "BI", 32)
         self.cell(0, 10, "Box Office Summary", align="C")
 
@@ -69,10 +76,12 @@ class PDF(FPDF):
         self.ln(20)
 
     def footer(self):
-        self.set_y(288)
-        self.line(88, 289, 122, 289)
+        # Placed from the page's bottom and centre so it also fits a landscape
+        # page (portrait A4: rule at y=289 from x=88 to 122, text at y=290).
+        bottom, middle = self.h - 9, self.w / 2
+        self.line(middle - 17, bottom + 1, middle + 17, bottom + 1)
         self.set_font("Courier", "B", 13)
-        self.set_y(290)
+        self.set_y(bottom + 2)
         self.set_x(20)
         self.cell(0, 4, f"Page {self.page_no()}/{{nb}}", align="C")
 
@@ -129,9 +138,14 @@ def make_pdf(director: Director, films: list[Movie]) -> PDF:
                 _money(movie.worldwide_gross),
             ])
 
-    # --- Last page: chart, filling the box under the header ---
+    # --- Last page: chart, filling the box under the header (or, for many
+    # films, a whole landscape page without it) ---
     if ordered:
-        pdf.add_page()
+        if len(ordered) > PORTRAIT_CHART_MAX_FILMS:
+            pdf.show_header = False
+            pdf.add_page(orientation="L")
+        else:
+            pdf.add_page()
         top = pdf.get_y()
         width = pdf.epw
         height = pdf.page_break_trigger - top - 2  # keep clear of the footer
