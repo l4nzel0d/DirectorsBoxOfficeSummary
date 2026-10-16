@@ -6,3 +6,4 @@ project.py
 *__pycache__
 .temp
 .pytest_cache
+output/
