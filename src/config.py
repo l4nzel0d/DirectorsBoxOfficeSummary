@@ -1,25 +1,22 @@
-"""Configuration and credentials for the IMDb (RapidAPI) client."""
+"""Configuration for the IMDb GraphQL client.
 
-import os
+All the data (name search, director, filmography, box office) comes from IMDb's
+unofficial GraphQL endpoint. It needs no key, only the client-name header
+below. Every response carries IMDb's disclaimer: "Public, commercial, and/or
+non-private use of the IMDb data provided by this API is not allowed" — so this
+tool is for personal, non-commercial use only.
+"""
 
-from dotenv import load_dotenv
+IMDB_GRAPHQL_URL = "https://caching.graphql.imdb.com/"
 
-load_dotenv()
+# Without this header IMDb answers with a bare 403 HTML page; any value passes.
+IMDB_HEADERS = {"x-imdb-client-name": "imdb-web-next"}
 
-RAPIDAPI_HOST = "imdb8.p.rapidapi.com"
-API_KEY = os.getenv("API_KEY")
-
-
-def headers() -> dict[str, str]:
-    """Build the auth headers for a RapidAPI request.
-
-    Raises a clear error if the key is missing, rather than letting the
-    request fail later with an opaque 401/403.
-    """
-    if not API_KEY:
-        raise RuntimeError("API_KEY is not set. Add it to your .env file.")
-    return {
-        "x-rapidapi-key": API_KEY,
-        "x-rapidapi-host": RAPIDAPI_HOST,
-        "Content-Type": "application/json",
-    }
+# The host occasionally drops connections or throttles; retry a few times with
+# exponential backoff so one transient blip doesn't abort a run. 403 is
+# deliberately absent: it means IMDb changed its access rules, and retrying
+# won't help.
+TIMEOUT = 30
+MAX_RETRIES = 4
+BACKOFF_BASE = 1.0  # seconds: waits 1, 2, 4 ... between attempts
+RETRY_STATUSES = {429, 500, 502, 503, 504}

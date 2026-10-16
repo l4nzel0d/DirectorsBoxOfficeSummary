@@ -1,99 +1,130 @@
-"""Thin client over the imdb8 RapidAPI endpoints.
+"""Thin client over IMDb's GraphQL API (caching.graphql.imdb.com).
 
-Each function makes one HTTP call and returns the parsed JSON (or a small
-slice of it). Shaping/normalizing the data lives elsewhere — this module is
-only responsible for talking to the API.
+Each function makes one logical call and returns the parsed JSON (or a slice of
+it). Shaping/normalizing the data lives elsewhere — this module is only
+responsible for talking to the API. The API is undocumented and introspection
+is blocked, so the field names below come from known working queries.
+
+Failures are loud: a 403 (IMDb changed its access rules) or a GraphQL `errors`
+array raises RuntimeError, so partial data never becomes a silently wrong PDF.
 """
-
-import time
 
 import requests
 
 from . import config
+from .http_client import post_json
 
-BASE_URL = f"https://{config.RAPIDAPI_HOST}"
-TIMEOUT = 30
+# Credits per page; Nolan has 18 directing credits, Hitchcock 69.
+PAGE_SIZE = 250
 
-# The RapidAPI host occasionally drops connections or throttles; retry a few
-# times with exponential backoff so one transient blip doesn't abort a run
-# that makes a dozen+ sequential calls.
-MAX_RETRIES = 4
-BACKOFF_BASE = 1.0  # seconds: waits 1, 2, 4 ... between attempts
-RETRY_STATUSES = {429, 500, 502, 503, 504}
+SEARCH = """
+query Search($term: String!) {
+  mainSearch(first: 20, options: { searchTerm: $term, type: NAME, includeAdult: false }) {
+    edges { node { entity { ... on Name {
+      id
+      nameText { text }
+      primaryProfessions { category { id text } }
+      knownForV2(limit: 3) { credits { title { titleText { text } releaseYear { year } } } }
+      meterRanking { currentRank }
+    } } } }
+  }
+}
+"""
+
+NAME = """
+query Name($id: ID!) {
+  name(id: $id) { id nameText { text } primaryImage { url } }
+}
+"""
+
+CREDITS = """
+query Credits($id: ID!, $first: Int!, $after: ID) {
+  name(id: $id) {
+    credits(first: $first, after: $after, filter: { categories: ["director"] }) {
+      pageInfo { hasNextPage endCursor }
+      edges { node { title {
+        id
+        titleText { text }
+        titleType { id }
+        releaseYear { year }
+        productionStatus { currentProductionStage { id } }
+        primaryImage { url }
+        productionBudget { budget { amount currency } }
+        domestic: lifetimeGross(boxOfficeArea: DOMESTIC) { total { amount currency } }
+        worldwide: lifetimeGross(boxOfficeArea: WORLDWIDE) { total { amount currency } }
+        openingWeekendGross(boxOfficeArea: DOMESTIC) { gross { total { amount currency } } }
+      } } }
+    }
+  }
+}
+"""
 
 
-def _get(path: str, params: dict) -> dict:
-    url = f"{BASE_URL}{path}"
-    for attempt in range(MAX_RETRIES):
-        last_attempt = attempt == MAX_RETRIES - 1
-        try:
-            response = requests.get(
-                url,
-                headers=config.headers(),
-                params=params,
-                timeout=TIMEOUT,
-            )
-        except (requests.ConnectionError, requests.Timeout):
-            if last_attempt:
-                raise
-        else:
-            # Retry transient server/throttle statuses; let everything else
-            # (success or a real 4xx) fall through to raise_for_status/return.
-            if not (response.status_code in RETRY_STATUSES and not last_attempt):
-                response.raise_for_status()
-                return response.json()
-
-        time.sleep(BACKOFF_BASE * 2**attempt)
-
-    # Unreachable: the loop either returns or raises on the last attempt.
-    raise RuntimeError("retry loop exited without returning")
+def _query(query: str, variables: dict) -> dict:
+    try:
+        body = post_json(
+            config.IMDB_GRAPHQL_URL,
+            {"query": query, "variables": variables},
+            config.IMDB_HEADERS,
+        )
+    except requests.HTTPError as exc:
+        if exc.response is not None and exc.response.status_code == 403:
+            raise RuntimeError(
+                "IMDb refused the request (HTTP 403); its GraphQL access rules may have changed."
+            ) from exc
+        raise
+    if body.get("errors"):
+        messages = "; ".join(e.get("message", "unknown error") for e in body["errors"])
+        raise RuntimeError(f"IMDb GraphQL error: {messages}")
+    return body["data"]
 
 
-def search_director(query: str) -> list[dict]:
-    """Search people/titles by name via /auto-complete.
+def search_names(term: str) -> list[dict]:
+    """Search people by name via mainSearch (up to 20, IMDb's relevance order).
 
-    Returns the raw `d` list of candidates. Each candidate has:
-      - id: the IMDb id (e.g. "nm0634240" for a person)
-      - l:  display name/label
-      - i:  image dict ({imageUrl, height, width}) — may be absent
-      - s:  subtitle string (e.g. "Producer, Tenet (2020)")
+    Returns the flat list of raw Name entities; each has:
+      - id:                 the IMDb name id (e.g. "nm0634240")
+      - nameText.text:      display name
+      - primaryProfessions: [{category: {id, text}}], e.g. id "director",
+                            text "Director"
+      - knownForV2.credits: [{title: {titleText.text, releaseYear.year}}]
+      - meterRanking:       {currentRank} STARmeter rank (lower is more
+                            popular), or null for unranked people
     """
-    data = _get("/auto-complete", {"q": query})
-    return data.get("d", [])
+    data = _query(SEARCH, {"term": term})
+    return [edge["node"]["entity"] for edge in data["mainSearch"]["edges"]]
 
 
-def get_filmography(director_id: str) -> list[dict]:
-    """List a person's titles via /actors/get-all-filmography.
+def get_name(name_id: str) -> dict | None:
+    """Fetch a person by bare IMDb name id (e.g. "nm0634240").
 
-    `director_id` is a bare IMDb person id (e.g. "nm0634240"), exactly as
-    returned by search_director. Returns the raw `filmography` list; each
-    entry has:
-      - category:  the person's role (e.g. "director", "actor")
-      - id:        the title id, wrapped as "/title/tt.../"
-      - title:     display title
-      - titleType: "movie", "tvSeries", ...
-      - status:    "released", "pre production", ...
-      - year:      release year (may be absent)
-      - image:     poster dict ({url, height, width}) (may be absent)
+    Returns the raw Name node: id, nameText.text, primaryImage.url (either may
+    be null). An unknown id comes back as a node whose nameText is null.
     """
-    data = _get("/actors/get-all-filmography", {"nconst": director_id})
-    return data.get("filmography", [])
+    return _query(NAME, {"id": name_id})["name"]
 
 
-def get_box_office(title_id: str) -> dict:
-    """Fetch budget + gross for a title via /title/v2/get-box-office-summary.
+def get_directing_credits(name_id: str) -> list[dict]:
+    """List the titles a person directed, following pagination to the end.
 
-    `title_id` is a bare IMDb title id (e.g. "tt15398776"). Returns the raw
-    `data.title` dict. Relevant (all optional) fields:
-      - budget.totalBudget.amount
-      - domesticGross.total.amount
-      - worldwideGross.total.amount
-      - openingWeekendGrosses.edges[0].node.gross.total.amount
-
-    Amounts live under nested {amount, currency} "Money" objects.
+    Returns the flat list of raw Title nodes; each has:
+      - id, titleText.text, titleType.id (e.g. "movie", "short"),
+        releaseYear.year, primaryImage.url
+      - productionStatus.currentProductionStage.id (e.g. "released",
+        "abandoned", "in_production")
+      - productionBudget.budget:        Money {amount, currency}
+      - domestic.total:                 Money (alias of lifetimeGross DOMESTIC)
+      - worldwide.total:                Money (alias of lifetimeGross WORLDWIDE)
+      - openingWeekendGross.gross.total: Money (domestic opening weekend)
+    Any of these may be null. Grosses are USD; budgets can be in local currency.
     """
-    data = _get(
-        "/title/v2/get-box-office-summary",
-        {"tconst": title_id, "country": "US", "language": "en-US"},
-    )
-    return data.get("data", {}).get("title", {})
+    titles: list[dict] = []
+    variables = {"id": name_id, "first": PAGE_SIZE}
+    while True:
+        name = _query(CREDITS, variables)["name"]
+        credits = (name or {}).get("credits") or {}
+        titles.extend(edge["node"]["title"] for edge in credits.get("edges") or [])
+        page = credits.get("pageInfo") or {}
+        if not page.get("hasNextPage"):
+            return titles
+        variables = {**variables, "after": page["endCursor"]}

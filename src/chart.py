@@ -12,7 +12,7 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib.figure import Figure
 
-from .movies import Movie
+from .models import Movie
 
 _MILLION = 1_000_000
 
