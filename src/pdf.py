@@ -13,6 +13,8 @@ from . import movies
 from .chart import render_chart
 from .models import Director, Movie
 
+MM_PER_INCH = 25.4
+
 
 def _money(amount: int) -> str:
     """Format an amount as USD, or '-' when it's 0 (missing/unknown)."""
@@ -127,9 +129,13 @@ def make_pdf(director: Director, films: list[Movie]) -> PDF:
                 _money(movie.worldwide_gross),
             ])
 
-    # --- Chart ---
-    chart = render_chart(ordered)
-    if chart is not None:
-        pdf.image(chart, w=186)
+    # --- Last page: chart, filling the box under the header ---
+    if ordered:
+        pdf.add_page()
+        top = pdf.get_y()
+        width = pdf.epw
+        height = pdf.page_break_trigger - top - 2  # keep clear of the footer
+        chart = render_chart(ordered, (width / MM_PER_INCH, height / MM_PER_INCH))
+        pdf.image(chart, x=pdf.l_margin, y=top, w=width, h=height)
 
     return pdf
