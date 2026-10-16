@@ -2,8 +2,8 @@
 
 Faithful port of the original project.py layout (same coordinates/fonts),
 but fed by typed domain objects and with images letterbox-fitted into their
-boxes (keep_aspect_ratio) instead of pre-cropped. The $0 -> "-" display rule
-lives here, in _money(). Aggregates come from the movies module.
+boxes (keep_aspect_ratio) instead of pre-cropped. Money is printed with
+formatting.money ($0 -> "-"). Aggregates come from the movies module.
 """
 
 from fpdf import FPDF
@@ -11,6 +11,7 @@ from fpdf.enums import XPos
 
 from . import movies
 from .chart import render_chart
+from .formatting import money
 from .models import Director, Movie
 
 MM_PER_INCH = 25.4
@@ -18,11 +19,6 @@ MM_PER_INCH = 25.4
 # With more films than this, the chart page turns landscape and drops the
 # header, so crowded tick labels get the room instead of the plot.
 PORTRAIT_CHART_MAX_FILMS = 15
-
-
-def _money(amount: int) -> str:
-    """Format an amount as USD, or '-' when it's 0 (missing/unknown)."""
-    return "-" if amount == 0 else f"${amount:,}"
 
 
 def _split_name(name: str) -> tuple[str, str]:
@@ -72,7 +68,7 @@ class PDF(FPDF):
         self.cell(0, 0, "Total Worldwide Box Office:")
         self.set_font("Helvetica", "B", 22)
         self.set_xy(name_x, 94)
-        self.cell(0, 0, _money(movies.total_worldwide(self.films)))
+        self.cell(0, 0, money(movies.total_worldwide(self.films)))
         self.ln(20)
 
     def footer(self):
@@ -101,7 +97,7 @@ def _top_movie(pdf: PDF, x: int, label: str, movie: Movie, amount: int):
     if movie.poster_url:
         pdf.image(movie.poster_url, x, 180, 50, 75, keep_aspect_ratio=True)
     pdf.set_xy(x, 263)
-    pdf.cell(50, 0, _money(amount), align="C")
+    pdf.cell(50, 0, money(amount), align="C")
 
 
 def make_pdf(director: Director, films: list[Movie]) -> PDF:
@@ -111,8 +107,8 @@ def make_pdf(director: Director, films: list[Movie]) -> PDF:
     ordered = pdf.films  # already worldwide-descending
 
     # --- Page 1 body: totals ---
-    _summary_line(pdf, "Total Domestic Box Office: ", _money(movies.total_domestic(ordered)))
-    _summary_line(pdf, "Total International Box Office: ", _money(movies.total_international(ordered)))
+    _summary_line(pdf, "Total Domestic Box Office: ", money(movies.total_domestic(ordered)))
+    _summary_line(pdf, "Total International Box Office: ", money(movies.total_international(ordered)))
     _summary_line(pdf, "Feature Films:  ", f"{len(ordered)}")
 
     # --- Page 1: top three films ---
@@ -133,9 +129,9 @@ def make_pdf(director: Director, films: list[Movie]) -> PDF:
             table.row([
                 str(rank),
                 movie.title,
-                _money(movie.budget),
-                _money(movie.domestic_gross),
-                _money(movie.worldwide_gross),
+                money(movie.budget),
+                money(movie.domestic_gross),
+                money(movie.worldwide_gross),
             ])
 
     # --- Last page: chart, filling the box under the header (or, for many

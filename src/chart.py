@@ -17,6 +17,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 
 from .models import Movie
+from .movies import by_year
 
 _MILLION = 1_000_000
 _DPI = 150
@@ -92,7 +93,7 @@ def render_chart(movies: list[Movie], size: tuple[float, float]) -> io.BytesIO |
         return None
 
     # Career timeline left->right; unknown-year films sort to the end.
-    movies = sorted(movies, key=lambda m: (m.year is None, m.year))
+    movies = by_year(movies)
 
     worldwide = [m.worldwide_gross / _MILLION for m in movies]
     domestic = [m.domestic_gross / _MILLION for m in movies]

@@ -25,6 +25,7 @@ __all__ = [
     "total_domestic",
     "total_international",
     "by_worldwide_desc",
+    "by_year",
     "top_by_worldwide",
     "top_by_domestic",
     "top_by_opening",
@@ -195,7 +196,7 @@ def get_directed_films(director_id: str) -> list[Movie]:
 
 
 # --------------------------------------------------------------------------- #
-# Pure aggregates / selectors over a list of Movies (used by the PDF layer).
+# Pure aggregates / selectors over a list of Movies (used by the render layers).
 # All tolerate an empty list: totals return 0, selectors return None.
 # --------------------------------------------------------------------------- #
 
@@ -216,6 +217,11 @@ def total_international(movies: list[Movie]) -> int:
 def by_worldwide_desc(movies: list[Movie]) -> list[Movie]:
     """Copy sorted by worldwide gross, highest first (table/ranking order)."""
     return sorted(movies, key=lambda m: m.worldwide_gross, reverse=True)
+
+
+def by_year(movies: list[Movie]) -> list[Movie]:
+    """Copy in career order (release year, oldest first); unknown years last."""
+    return sorted(movies, key=lambda m: (m.year is None, m.year))
 
 
 def top_by_worldwide(movies: list[Movie]) -> Movie | None:
