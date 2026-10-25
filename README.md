@@ -12,6 +12,8 @@ Data from IMDb, no API key needed.
 <a href="https://directors-box-office-summary.vercel.app/"><img src="https://img.shields.io/badge/▶_Try_it_live-directors--box--office--summary.vercel.app-f5c542?style=for-the-badge&labelColor=0d2b45" alt="Try it live" /></a>
 
 
+<video src="https://github.com/user-attachments/assets/66c4b5af-6700-4060-b24a-40b216f3c60b" controls width="100%"></video>
+
 </div>
 
 <picture>
