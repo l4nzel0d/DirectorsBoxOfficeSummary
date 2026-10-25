@@ -1,16 +1,32 @@
+<div align="center">
+
+<img src="src/assets/favicon.svg" width="96" alt="Director's Box Office Summary icon" />
+
 # Director's Box Office Summary
 
-Type a film director's name and get a report on their box office career: total worldwide
-gross, the domestic/international split, their biggest hits, every film's numbers and a
-gross-over-time chart. The report comes as a print-ready **PDF**, a self-contained
-interactive **HTML page**, or both. All data comes from IMDb, and no API key is needed.
+**A director's whole box office career, in one page.**
+Type a name to see their total worldwide gross, the domestic/international split, their biggest hits,
+every film's numbers and a gross-over-time chart. Read it as a web page or save it as a PDF.
+Data from IMDb, no API key needed.
+
+<a href="https://directors-box-office-summary.vercel.app/"><img src="https://img.shields.io/badge/▶_Try_it_live-directors--box--office--summary.vercel.app-f5c542?style=for-the-badge&labelColor=0d2b45" alt="Try it live" /></a>
+
+
+</div>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/web-dark.png">
+  <img alt="The web app's welcome page: a search box for a director's name or IMDb id, a Web page / PDF toggle, a Get the report button and example names to try" src="docs/images/web-light.png">
+</picture>
+
+<sub>The welcome page. Enter a name or an IMDb id, pick a format and press **Get the report**.</sub>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/html-dark.png">
   <img alt="HTML summary for Christopher Nolan: $8.04B worldwide, domestic and international totals, top three films with posters, and a career box office chart" src="docs/images/html-light.png">
 </picture>
 
-<sub>Top half of the HTML page for Christopher Nolan. Full files:
+<sub>Top half of the web report for Christopher Nolan. Full files:
 [PDF](examples/christopher-nolan.pdf) · [HTML](examples/christopher-nolan.html)</sub>
 
 The same report as a PDF: a summary page with the top films, the full filmography and the
@@ -41,13 +57,32 @@ git clone <repo-url>
 cd DirectorsBoxOfficeSummary
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
+pip install -r requirements-dev.txt
+uvicorn app:app --reload
 ```
 
-You don't need an account, key or `.env` file.
+Open <http://127.0.0.1:8000>. You don't need an account, key or `.env` file.
 
-## Usage
+## Web app
+
+- **Search:** type a name or an IMDb id (such as `nm0634240`, from the director's IMDb URL).
+  Case and accents don't matter. A clear match opens the report straight away ("nolan" finds
+  Christopher Nolan). If the name is ambiguous ("Paul Anderson"), you get a list of up to
+  five people to choose from.
+- **Format:** the **Web page / PDF** toggle picks how the report opens. Reports live at
+  `/report/<nm id>.html` and `/report/<nm id>.pdf`, so you can link to them directly.
+- **Errors** are shown on the search page, not as tracebacks. If IMDb or the network fails,
+  the message says why (for example "IMDb returned 403").
+- **Size and caching:** the web page links its images to IMDb's CDN rather than embedding
+  them, so it is only tens of KB. Responses are cacheable for a day, so repeat requests
+  don't hit IMDb.
+- **Hosting:** it runs on Vercel's free Hobby plan (`app.py` and `vercel.json` are all it
+  needs). Keep such a deployment private: see the disclaimer below.
+
+## Command line
+
+The CLI writes the same reports to files. Only the runtime dependencies are needed
+(`pip install -r requirements.txt`).
 
 ```console
 $ python main.py
@@ -61,27 +96,12 @@ Downloading 14 image(s)...
 Saved output/Christopher Nolan.html
 ```
 
-- **Name:** case and accents don't matter. A clear match is picked automatically ("nolan"
-  finds Christopher Nolan). If the name is ambiguous ("Paul Anderson"), you get a numbered
-  list of up to five people. Pick one, or leave it blank to cancel.
-- **IMDb id:** to skip the search, type the id from the director's IMDb URL, such as
-  `nm0634240`.
+- **Name or id:** the same matching rules as the web app. An ambiguous name gives a numbered
+  list; pick one, or leave it blank to cancel.
 - **Format:** `pdf`, `html` or `both`. The first letter is enough, and a blank answer means
   `pdf`.
-- **Output:** files are written to `output/<Director Name>.pdf` and `.html`. The folder is
-  created on first run.
-
-### As a web app
-
-```bash
-pip install -r requirements-dev.txt
-uvicorn app:app --reload          # http://127.0.0.1:8000
-```
-
-A search box takes a name or an IMDb id and opens the report as a web page or a PDF. The web
-page links its images to IMDb's CDN rather than embedding them, so it is much smaller than
-the single-file version. It also runs on Vercel's free Hobby plan (`app.py` and `vercel.json`
-are all it needs), but keep such a deployment private: see the disclaimer below.
+- **Output:** files go to `output/<Director Name>.pdf` and `.html`. The folder is created on
+  first run. Unlike the web page, the CLI's HTML file embeds all images, so it works offline.
 
 ## What's in the report
 
@@ -104,7 +124,7 @@ title stays readable. Here is Spielberg's chart, with 36 films:
 
 ### HTML
 
-A single file with all CSS, JavaScript and images inlined.
+All CSS and JavaScript are inlined (the CLI also inlines the images, giving a single offline file).
 
 - **Light and dark themes:** follows your system setting.
 - **Interactive chart:** hover a film, or focus it with the keyboard, to see its title, year
