@@ -71,6 +71,18 @@ Saved output/Christopher Nolan.html
 - **Output:** files are written to `output/<Director Name>.pdf` and `.html`. The folder is
   created on first run.
 
+### As a web app
+
+```bash
+pip install -r requirements-dev.txt
+uvicorn app:app --reload          # http://127.0.0.1:8000
+```
+
+A search box takes a name or an IMDb id and opens the report as a web page or a PDF. The web
+page links its images to IMDb's CDN rather than embedding them, so it is much smaller than
+the single-file version. It also runs on Vercel's free Hobby plan (`app.py` and `vercel.json`
+are all it needs), but keep such a deployment private: see the disclaimer below.
+
 ## What's in the report
 
 Both formats contain:
@@ -124,6 +136,7 @@ rather than producing a report with missing films.
 
 ```
 main.py              prompts, file output; wires the layers together
+app.py               the same pipeline as a web app (FastAPI)
 src/
   movies.py          domain: API JSON -> Director / Movie, search ranking, totals, top films
   imdb_api.py        IMDb GraphQL queries
@@ -131,11 +144,12 @@ src/
   pdf.py, chart.py   PDF renderer (fpdf2) and matplotlib chart
   html_page.py       HTML renderer, with svg_chart.py and assets/ (CSS + JS)
   images.py          downloads the images for the HTML page as data URIs
-tests/               offline tests for the HTML output
+  search_page.py     the web app's search page
+tests/               offline tests for the HTML output and the web routes
 examples/            the sample reports linked above
 ```
 
-Everything under `src/` is free of side effects, and all I/O happens in `main.py`.
+Everything under `src/` is free of side effects, and all I/O happens in `main.py` and `app.py`.
 
 ## Tests
 
@@ -143,8 +157,9 @@ Everything under `src/` is free of side effects, and all I/O happens in `main.py
 pytest
 ```
 
-The tests run offline and cover the HTML renderer: escaping, missing values, placeholders,
-chart ordering and number formatting.
+The tests run offline and cover the HTML renderer (escaping, missing values, placeholders,
+chart ordering, number formatting) and the web routes (redirects, candidate list, error
+pages, PDF output). They need `requirements-dev.txt`.
 
 ## Disclaimer
 
