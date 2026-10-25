@@ -26,8 +26,7 @@ _DPI = 150
 # first; a smaller one is only used when nothing fits at the larger size.
 _FONT_SIZES = (10, 9, 8, 7, 6)
 _WRAP_WIDTHS = (None, 24, 18, 14)  # characters per line; None = no wrapping
-_MIN_ANGLE = 30  # below this, slanted labels sprawl across too many ticks
-_ANGLES = (0, *range(_MIN_ANGLE, 91, 5))
+_ANGLES = (0, 90)  # upright or vertical only; slanted labels look messy
 _GAP = 1.25  # min distance between neighbouring rotated labels, in label heights
 _MAX_REACH = 3  # a rotated label may span at most this many tick slots
 
@@ -59,7 +58,7 @@ def _choose_labels(movies, show_year, spacing, measure) -> tuple[list[str], int,
     """Pick the tick labels, rotation and font size that leave the plot the
     most height.
 
-    For each wrap width, takes the smallest angle at which the widest/tallest
+    For each wrap width, takes the first angle (0 or 90) at which the widest/tallest
     label fits (see _fits), and keeps the combination whose label band
     (w sin a + h cos a) is shortest; ties go to less wrapping.
     `measure(text, fontsize)` returns a label's unrotated (width, height)

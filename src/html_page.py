@@ -12,6 +12,7 @@ from html import escape
 from pathlib import Path
 
 from . import movies
+from .favicon import FAVICON_LINK
 from .formatting import money, money_short
 from .models import Director, Movie
 from .svg_chart import render_svg_chart
@@ -247,6 +248,7 @@ def make_html(director: Director, films: list[Movie], images: dict[str, str] | N
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
+{FAVICON_LINK}
 <title>{escape(director.name)} · Box Office Summary</title>
 <style>
 {css}</style>

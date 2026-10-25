@@ -85,7 +85,7 @@ def test_html_report_links_cdn_thumbnails_and_is_cacheable(client, imdb):
     assert "s-maxage" in response.headers["cache-control"]
     assert "Christopher Nolan" in response.text
     assert 'src="https://m.media-amazon.com/images/M/opp._V1_QL75_UX400_.jpg"' in response.text
-    assert "data:image" not in response.text
+    assert "data:image/jpeg" not in response.text  # the favicon is the only data URI
 
 
 def test_pdf_report(client, imdb, monkeypatch):

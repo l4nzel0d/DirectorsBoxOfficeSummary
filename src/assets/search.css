@@ -87,3 +87,25 @@
 
 .segmented input:checked + span { background: var(--surface-2); color: var(--ink); font-weight: 600; }
 .segmented input:focus-visible + span { outline: 2px solid var(--worldwide); outline-offset: 1px; }
+
+/* Shown while the report is being fetched (the server takes a few seconds). */
+.search button { display: inline-flex; align-items: center; gap: 10px; }
+.search button:disabled { cursor: progress; opacity: 0.85; }
+
+.spinner {
+  display: none;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.search.busy .spinner { display: inline-block; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2s; }
+}
