@@ -10,8 +10,7 @@
 
 .search { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 
-.search input,
-.search select,
+.search input[name="q"],
 .search button {
   padding: 12px 16px;
   border: 1px solid var(--border);
@@ -21,7 +20,7 @@
   font: inherit;
 }
 
-.search input { flex: 1 1 280px; min-width: 0; }
+.search input[name="q"] { flex: 1 1 280px; min-width: 0; }
 
 .search button {
   border-color: transparent;
@@ -53,3 +52,38 @@
 
 .candidates .name { font-weight: 650; }
 .candidates .meta { display: block; color: var(--muted); font-size: 14px; }
+
+.lede { max-width: 60ch; margin-top: 16px; color: var(--ink-2); font-size: 1.0625rem; }
+
+.try { margin-top: 16px; color: var(--muted); font-size: 14px; }
+.try a { color: var(--ink-2); }
+
+/* Two-way choice drawn as a segmented control: no native dropdown. */
+.segmented {
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.segmented label { display: block; position: relative; cursor: pointer; }
+
+.segmented input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.segmented span {
+  display: block;
+  padding: 8px 16px;
+  border-radius: calc(var(--radius) - 4px);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.segmented input:checked + span { background: var(--surface-2); color: var(--ink); font-weight: 600; }
+.segmented input:focus-visible + span { outline: 2px solid var(--worldwide); outline-offset: 1px; }

@@ -38,7 +38,7 @@ def test_search_page_has_the_form(client):
     response = client.get("/")
     assert response.status_code == 200
     assert 'name="q"' in response.text
-    assert '<option value="html" selected>' in response.text
+    assert '<input type="radio" name="format" value="html" checked>' in response.text
 
 
 def test_name_id_skips_the_search(client, monkeypatch):
